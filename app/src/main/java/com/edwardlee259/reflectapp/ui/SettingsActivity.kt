@@ -1,5 +1,6 @@
 package com.edwardlee259.reflectapp.ui
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,6 @@ import androidx.preference.PreferenceFragmentCompat
 import com.edwardlee259.reflectapp.R
 
 class SettingsActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -29,7 +29,22 @@ class SettingsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+            if (key != null) {
+                val pref = findPreference<Preference>(key)
+                if (pref is TimeDialogPreference && key == "blocking_start_time") {
+                    val time = pref.getTime()
+                    val hours = when (time / 60) {
+                        0 -> 12
+                        else -> time / 60
+                    }.toString()
+                    val minutes = (time % 60).toString()
+                    pref.summary = "Starts at %s:%s".format(hours.padStart(2, '0'), minutes.padStart(2, '0'))
+                }
+            }
+        }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_general, rootKey)
         }
