@@ -8,6 +8,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.edwardlee259.reflectapp.R
+import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar.*
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        UsageStatsPermissions.requestPermissionsDialog(this)
     }
 
     override fun onBackPressed() {
@@ -73,4 +76,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
+
 }

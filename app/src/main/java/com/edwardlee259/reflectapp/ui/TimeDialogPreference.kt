@@ -33,8 +33,6 @@ class TimeDialogPreference : DialogPreference {
             else -> time / 60
         }.toString()
         val minutes = (time % 60).toString()
-        // TODO: Not the best place for extensibility purposes. but it works for my specific case
-        summary = "Starts at %s:%s".format(hours.padStart(2, '0'), minutes.padStart(2, '0'))
     }
 
     override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {

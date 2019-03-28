@@ -6,14 +6,13 @@
         android:layout_height="wrap_content">
 
     <SwitchPreferenceCompat
-            app:key="blocking"
-            app:defaultValue="true"
-            app:title="Enable message notifications"/>
+            app:key="@string/pref_key_blocking"
+            app:defaultValue="false"
+            app:title="Block apps"/>
 
     <com.edwardlee259.reflectapp.ui.TimeDialogPreference
-            app:key="blocking_start_time"
+            app:key="@string/pref_key_blocking_start_time"
             app:dependency="blocking"
-            app:summary="Starts everyday at 12:00"
             app:title="Time to begin blocking apps"/>
 
 </androidx.preference.PreferenceScreen>
