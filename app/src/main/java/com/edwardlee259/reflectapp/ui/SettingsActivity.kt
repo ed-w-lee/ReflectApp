@@ -41,6 +41,7 @@ class SettingsActivity : AppCompatActivity() {
         SharedPreferences.OnSharedPreferenceChangeListener {
 
         private lateinit var blockingStartTimeKey: String
+        private lateinit var serviceStatusKey: String
 
         override fun onSharedPreferenceChanged(
             sharedPreferences: SharedPreferences?,
@@ -51,6 +52,8 @@ class SettingsActivity : AppCompatActivity() {
                 Log.d(LOG_TAG, "preference with key: $key updated")
                 if (pref is TimeDialogPreference && key == blockingStartTimeKey) {
                     setBlockingStartTimeSummary(pref)
+                } else if (pref != null && key == serviceStatusKey) {
+                    setServiceStatusPreference()
                 }
             }
         }
@@ -68,11 +71,16 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_general, rootKey)
 
+            // set correct summary for start time
             blockingStartTimeKey = getString(R.string.pref_key_blocking_start_time)
             val pref = findPreference<Preference>(blockingStartTimeKey)
             if (pref is TimeDialogPreference) {
                 setBlockingStartTimeSummary(pref)
             }
+
+            // set summary for service status
+            serviceStatusKey = getString(R.string.pref_key_service_status)
+            setServiceStatusPreference()
         }
 
         private fun setBlockingStartTimeSummary(pref: TimeDialogPreference) {
@@ -87,6 +95,18 @@ class SettingsActivity : AppCompatActivity() {
 
             pref.summary = "Starts at %s".format(timeStr)
             Log.d(LOG_TAG, "updated summary to ${pref.summary}")
+        }
+
+        private fun setServiceStatusPreference() {
+            val status = preferenceManager.sharedPreferences.getBoolean(serviceStatusKey, true)
+            val preference = findPreference<Preference>(serviceStatusKey)
+            preference?.summary = if (status) {
+                findPreference<Preference>(getString(R.string.pref_key_blocking))?.isEnabled = true
+                "Stopped, settings are enabled."
+            } else {
+                findPreference<Preference>(getString(R.string.pref_key_blocking))?.isEnabled = false
+                "Running, stop service to modify settings"
+            }
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {

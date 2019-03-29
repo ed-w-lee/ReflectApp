@@ -20,7 +20,6 @@ import com.edwardlee259.reflectapp.ui.MainActivity
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import java.text.DateFormat
 import java.util.*
-import kotlin.math.max
 
 class BlockingService : Service() {
     companion object {
@@ -40,7 +39,6 @@ class BlockingService : Service() {
 
     // SharedPreference
     private lateinit var mCurrSharedPreferences: SharedPreferences
-    private lateinit var mSharedPreferenceListener: SharedPreferences.OnSharedPreferenceChangeListener
 
     // Blocking Management
     private var blockingEnabled: Boolean = false // general "should we block or not"
@@ -64,26 +62,11 @@ class BlockingService : Service() {
         createNotificationChannel()
         mAlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // set up preference listener to update AlarmManager as needed
         mCurrSharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        mSharedPreferenceListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-                Log.d(LOG_TAG, "got new shared preference")
-                when (key) {
-                    getString(R.string.pref_key_blocking) -> {
-                        if (sharedPreferences.getBoolean(key, false)) {
-                            enableBlocking()
-                        } else {
-                            disableBlocking()
-                        }
-                    }
-                    getString(R.string.pref_key_blocking_start_time) -> {
-                        nextBlockingTime = sharedPreferences.getInt(key, 0)
-                        resetAlarms(nextBlockingTime)
-                    }
-                }
-            }
+        mCurrSharedPreferences.edit().putBoolean(getString(R.string.pref_key_service_status), false)
+            .apply()
+
         blockingEnabled =
             mCurrSharedPreferences.getBoolean(getString(R.string.pref_key_blocking), false)
         nextBlockingTime =
@@ -95,7 +78,9 @@ class BlockingService : Service() {
 
     override fun onDestroy() {
         Log.d(LOG_TAG, "destroying service")
-        mCurrSharedPreferences.unregisterOnSharedPreferenceChangeListener(mSharedPreferenceListener)
+        disableBlocking()
+        mCurrSharedPreferences.edit().putBoolean(getString(R.string.pref_key_service_status), true)
+            .apply()
         super.onDestroy()
     }
 
@@ -147,7 +132,7 @@ class BlockingService : Service() {
             nextDate.set(Calendar.HOUR_OF_DAY, minutesAfterMidnight / 60)
             nextDate.set(Calendar.MINUTE, minutesAfterMidnight % 60)
             if (nextDate.before(currDate)) {
-                nextDate.set(Calendar.DAY_OF_YEAR, currDate.get(Calendar.DAY_OF_YEAR))
+                nextDate.set(Calendar.DAY_OF_YEAR, currDate.get(Calendar.DAY_OF_YEAR) + 1)
             }
 
             val toPrint = DateFormat.getDateTimeInstance().format(nextDate.time)
@@ -164,12 +149,6 @@ class BlockingService : Service() {
                 pendingIntent
             )
         }
-    }
-
-    private fun enableBlocking() {
-        Log.d(LOG_TAG, "enabling blocking")
-        blockingEnabled = true
-        resetAlarms(nextBlockingTime)
     }
 
     private fun beginBlockingIfNeeded() {
@@ -273,30 +252,31 @@ class BlockingService : Service() {
         assert(currentlyBlocking)
         val builder = getNotificationBuilder()
             .setContentText("Blocking, tap to reflect now")
+
+        // postpone blocking
         if (nPostpones < POSTPONE_LIMIT) {
             nPostpones++
-            lastPostponeTime = if (lastPostponeTime == null) {
-                System.currentTimeMillis()
-            } else {
-                max(lastPostponeTime!! + POSTPONE_INTERVAL, System.currentTimeMillis())
-            }
+            lastPostponeTime = System.currentTimeMillis()
+        }
 
-            val postponeUntilStr =
-                DateFormat.getTimeInstance().format(Date(lastPostponeTime!! + POSTPONE_INTERVAL))
+        // update notification to reflect postpones left
+        val postponeUntilStr =
+            DateFormat.getTimeInstance().format(Date(lastPostponeTime!! + POSTPONE_INTERVAL))
+        builder.setContentText("Postponed until $postponeUntilStr")
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    getReflectIntent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            )
+        if (nPostpones < POSTPONE_LIMIT) {
             builder
-                .setContentText("Postponed until $postponeUntilStr")
                 .addAction(
                     R.drawable.ic_postpone,
                     "Postpone (${POSTPONE_LIMIT - nPostpones} left)",
                     getServiceIntent(ACTION_POSTPONE, false)
-                )
-                .setContentIntent(
-                    PendingIntent.getActivity(
-                        this,
-                        0,
-                        getReflectIntent(),
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                    )
                 )
         } else {
             builder.setSubText("No more postpones")
@@ -322,10 +302,9 @@ class BlockingService : Service() {
         stopForeground(false)
 
         val builder = getNotificationBuilder()
-            .setContentText("Blocking has ended")
+            .setContentText("Thanks for reflecting! See you tomorrow.")
             .setAutoCancel(true)
             .setSmallIcon(R.drawable.ic_done)
-            .setPriority(Notification.PRIORITY_DEFAULT)
         mNotifyManager.notify(NOTIFICATION_ID, builder.build())
     }
 

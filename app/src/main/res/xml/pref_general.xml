@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Preference
+        app:defaultValue="true"
+        app:isPreferenceVisible="true"
+        app:key="@string/pref_key_service_status"
+        app:selectable="false"
+        app:shouldDisableView="false"
+        app:title="Service Status" />
 
     <SwitchPreferenceCompat
-            app:key="@string/pref_key_blocking"
-            app:defaultValue="false"
-            app:title="Block apps"/>
+        app:defaultValue="false"
+        app:key="@string/pref_key_blocking"
+        app:title="Block apps" />
 
     <com.edwardlee259.reflectapp.ui.TimeDialogPreference
-            app:key="@string/pref_key_blocking_start_time"
-            app:dependency="blocking"
-            app:title="Time to begin blocking apps"/>
+        app:dependency="blocking"
+        app:key="@string/pref_key_blocking_start_time"
+        app:title="Time to begin blocking apps" />
 
 </androidx.preference.PreferenceScreen>
