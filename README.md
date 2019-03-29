@@ -26,6 +26,8 @@ Highest being most important:
   survey and store those responses in some database
 * **customizable surveys** - Users should be able to create their own surveys
   that they want to fill out with metrics they want to track.
+* **clean up code** - hopefully make it easier to navigate
+* **add tests** - figure out how to actually do tests and whatnot
 * **data visualization** - some way of graphing responses over time
 * **blocking levels** - have different levels of blocking (all apps blocked, no
   apps blocked, obnoxious notification, etc.)
