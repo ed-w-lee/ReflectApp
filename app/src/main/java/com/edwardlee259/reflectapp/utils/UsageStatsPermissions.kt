@@ -6,11 +6,14 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 
 class UsageStatsPermissions {
 
     companion object {
+        private val LOG_TAG = UsageStatsPermissions::class.java.simpleName
+
         fun hasUsageStatsPermission(context: Context): Boolean {
             val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             val mode = appOps.checkOpNoThrow(
@@ -27,7 +30,10 @@ class UsageStatsPermissions {
         }
 
         fun requestPermissionsDialog(activity: Activity): Dialog? {
-            if (hasUsageStatsPermission(activity.applicationContext)) return null
+            if (hasUsageStatsPermission(activity.applicationContext)) {
+                Log.d(LOG_TAG, "we have permissions. don't present dialog")
+                return null
+            }
             return activity.let {
                 // Use the Builder class for convenient dialog construction
                 val builder = AlertDialog.Builder(it)
@@ -38,9 +44,6 @@ class UsageStatsPermissions {
                     }
                     .setNegativeButton("Cancel") { dialog, id ->
                         // User cancelled the dialog
-                        activity.finishAndRemoveTask()
-                    }
-                    .setOnDismissListener {
                         activity.finishAndRemoveTask()
                     }
                 // Create the AlertDialog object and return it

@@ -8,10 +8,12 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.edwardlee259.reflectapp.R
+import com.edwardlee259.reflectapp.block.BlockingService
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -30,7 +32,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        UsageStatsPermissions.requestPermissionsDialog(this)
+        start_service_btn.setOnClickListener { v ->
+            val dialog = UsageStatsPermissions.requestPermissionsDialog(this)
+            if (dialog != null) {
+                dialog.show()
+            } else {
+                val intent = Intent(this, BlockingService::class.java)
+                startService(intent)
+            }
+        }
+        stop_service_btn.setOnClickListener { v ->
+            val intent = Intent(this, BlockingService::class.java)
+            stopService(intent)
+        }
+
     }
 
     override fun onBackPressed() {

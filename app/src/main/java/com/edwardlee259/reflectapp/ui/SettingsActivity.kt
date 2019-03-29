@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -13,6 +14,10 @@ import com.edwardlee259.reflectapp.R
 import java.text.ParseException
 
 class SettingsActivity : AppCompatActivity() {
+    companion object {
+        private val LOG_TAG = SettingsActivity::class.java.simpleName
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -43,10 +48,21 @@ class SettingsActivity : AppCompatActivity() {
         ) {
             if (key != null) {
                 val pref = findPreference<Preference>(key)
+                Log.d(LOG_TAG, "preference with key: $key updated")
                 if (pref is TimeDialogPreference && key == blockingStartTimeKey) {
                     setBlockingStartTimeSummary(pref)
                 }
             }
+        }
+
+        override fun onResume() {
+            super.onResume()
+            preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        }
+
+        override fun onPause() {
+            super.onPause()
+            preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -66,10 +82,11 @@ class SettingsActivity : AppCompatActivity() {
             try {
                 timeStr = DateFormat.getTimeFormat(this.context).format(sdf.parse(timeStr))
             } catch (e: ParseException) {
-                e.printStackTrace()
+                Log.e(LOG_TAG, "parse exception: ${e.message}")
             }
 
             pref.summary = "Starts at %s".format(timeStr)
+            Log.d(LOG_TAG, "updated summary to ${pref.summary}")
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {

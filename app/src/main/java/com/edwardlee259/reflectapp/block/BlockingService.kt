@@ -3,7 +3,9 @@ package com.edwardlee259.reflectapp.block
 import android.app.*
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.content.*
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -11,10 +13,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.edwardlee259.reflectapp.R
 import com.edwardlee259.reflectapp.ui.MainActivity
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
+import java.text.DateFormat
 import java.util.*
 import kotlin.math.max
 
@@ -31,7 +35,7 @@ class BlockingService : Service() {
 
         private val POSTPONE_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES
         private val POSTPONE_LIMIT = 4
-        private val LOOP_INTERVAL = 1000L
+        private val LOOP_INTERVAL = 5000L
     }
 
     // SharedPreference
@@ -42,61 +46,61 @@ class BlockingService : Service() {
     private var blockingEnabled: Boolean = false // general "should we block or not"
     private lateinit var mNotifyManager: NotificationManager
     private lateinit var mAlarmManager: AlarmManager
-    private lateinit var mBlockingReceiver: BlockingReceiver
     private var nextBlockingTime: Int = 0 // general time of when blocking starts
 
     // Currently Blocking
     private val mHandler = Handler()
     private var currentlyBlocking: Boolean = false
-    private var lastPostponeTime: Long? = null // when the last postpone was, or null if no postpones occurred
+    private var lastPostponeTime: Long? =
+        null // when the last postpone was, or null if no postpones occurred
     private var nPostpones: Int = 0 // number of postpones
 
     override fun onCreate() {
         super.onCreate()
 
-        // register broadcast receiver
-        mBlockingReceiver = BlockingReceiver()
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(ACTION_BEGIN_BLOCKING)
-        intentFilter.addAction(ACTION_POSTPONE)
-        intentFilter.addAction(ACTION_STOP_BLOCKING)
-        registerReceiver(mBlockingReceiver, intentFilter)
+        Log.d(LOG_TAG, "creating blocking service")
 
         // set up Notifications and AlarmManager for daily alarms to begin blocking
         createNotificationChannel()
         mAlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // set up preference listener to update AlarmManager as needed
-        mCurrSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        mSharedPreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            when (key) {
-                getString(R.string.pref_key_blocking) -> {
-                    if (sharedPreferences.getBoolean(key, false)) {
-                        enableBlocking()
-                    } else {
-                        disableBlocking()
+        mCurrSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
+        mSharedPreferenceListener =
+            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+                Log.d(LOG_TAG, "got new shared preference")
+                when (key) {
+                    getString(R.string.pref_key_blocking) -> {
+                        if (sharedPreferences.getBoolean(key, false)) {
+                            enableBlocking()
+                        } else {
+                            disableBlocking()
+                        }
+                    }
+                    getString(R.string.pref_key_blocking_start_time) -> {
+                        nextBlockingTime = sharedPreferences.getInt(key, 0)
+                        resetAlarms(nextBlockingTime)
                     }
                 }
-                getString(R.string.pref_key_blocking_start_time) -> {
-                    nextBlockingTime = sharedPreferences.getInt(key, 0)
-                    resetAlarms(nextBlockingTime)
-                }
             }
-        }
-        blockingEnabled = mCurrSharedPreferences.getBoolean(getString(R.string.pref_key_blocking), false)
-        nextBlockingTime = mCurrSharedPreferences.getInt(getString(R.string.pref_key_blocking_start_time), 0)
+        blockingEnabled =
+            mCurrSharedPreferences.getBoolean(getString(R.string.pref_key_blocking), false)
+        nextBlockingTime =
+            mCurrSharedPreferences.getInt(getString(R.string.pref_key_blocking_start_time), 0)
         if (blockingEnabled) {
             resetAlarms(nextBlockingTime)
         }
     }
 
     override fun onDestroy() {
-        unregisterReceiver(mBlockingReceiver)
+        Log.d(LOG_TAG, "destroying service")
         mCurrSharedPreferences.unregisterOnSharedPreferenceChangeListener(mSharedPreferenceListener)
         super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(LOG_TAG, "start command sent with action: ${intent?.action}")
         when (intent?.action) {
             ACTION_BEGIN_BLOCKING -> {
                 beginBlockingIfNeeded()
@@ -116,7 +120,7 @@ class BlockingService : Service() {
         return null
     }
 
-    private fun getBroadcastIntent(action: String, noCreate: Boolean): PendingIntent {
+    private fun getServiceIntent(action: String, noCreate: Boolean): PendingIntent? {
         val intent = Intent(this, BlockingService::class.java)
         intent.action = action
         val flags = if (noCreate) {
@@ -124,7 +128,7 @@ class BlockingService : Service() {
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
-        return PendingIntent.getBroadcast(this, NOTIFICATION_ID, intent, flags)
+        return PendingIntent.getService(this, NOTIFICATION_ID, intent, flags)
     }
 
     private fun getReflectIntent(): Intent {
@@ -135,24 +139,41 @@ class BlockingService : Service() {
     }
 
     private fun resetAlarms(minutesAfterMidnight: Int) {
-        val pendingIntent = getBroadcastIntent(ACTION_BEGIN_BLOCKING, true)
+        val pendingIntent = getServiceIntent(ACTION_BEGIN_BLOCKING, false)
         mAlarmManager.cancel(pendingIntent)
-        val currDate = Calendar.getInstance()
-        val nextDate = currDate.clone() as Calendar
-        nextDate.set(Calendar.HOUR_OF_DAY, minutesAfterMidnight / 60)
-        nextDate.set(Calendar.MINUTE, minutesAfterMidnight % 60)
-        if (nextDate.before(currDate)) {
-            nextDate.set(Calendar.DAY_OF_YEAR, currDate.get(Calendar.DAY_OF_YEAR))
+        if (blockingEnabled) {
+            val currDate = Calendar.getInstance()
+            val nextDate = currDate.clone() as Calendar
+            nextDate.set(Calendar.HOUR_OF_DAY, minutesAfterMidnight / 60)
+            nextDate.set(Calendar.MINUTE, minutesAfterMidnight % 60)
+            if (nextDate.before(currDate)) {
+                nextDate.set(Calendar.DAY_OF_YEAR, currDate.get(Calendar.DAY_OF_YEAR))
+            }
+
+            val toPrint = DateFormat.getDateTimeInstance().format(nextDate.time)
+            Log.d(LOG_TAG, "Creating alarms for $toPrint")
+            val builder = getNotificationBuilder()
+                .setAutoCancel(true)
+                .setContentText("Next alarm at $toPrint")
+            mNotifyManager.notify(NOTIFICATION_ID, builder.build())
+
+            mAlarmManager.setRepeating(
+                AlarmManager.RTC,
+                nextDate.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
         }
-        mAlarmManager.setRepeating(AlarmManager.RTC, nextDate.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
     }
 
     private fun enableBlocking() {
+        Log.d(LOG_TAG, "enabling blocking")
         blockingEnabled = true
         resetAlarms(nextBlockingTime)
     }
 
     private fun beginBlockingIfNeeded() {
+        Log.d(LOG_TAG, "beginning blocking if needed")
         if (blockingEnabled && !currentlyBlocking) {
             nPostpones = 0
             lastPostponeTime = null
@@ -162,7 +183,7 @@ class BlockingService : Service() {
                 .addAction(
                     R.drawable.ic_postpone,
                     "Postpone ($POSTPONE_LIMIT left)",
-                    getBroadcastIntent(ACTION_POSTPONE, false)
+                    getServiceIntent(ACTION_POSTPONE, false)
                 )
                 .setContentIntent(
                     PendingIntent.getActivity(
@@ -173,23 +194,38 @@ class BlockingService : Service() {
                     )
                 )
             startForeground(NOTIFICATION_ID, builder.build())
-            mHandler.postDelayed({
-                if (shouldBlock()) {
-                    val foregroundApp = getForegroundApp(this, 2 * LOOP_INTERVAL)
-                    Log.d(LOG_TAG, "Foreground app detected: $foregroundApp")
-                    if (foregroundApp == null) {
-                        return@postDelayed
-                    } else if (foregroundApp == packageName) {
-                        Log.d(LOG_TAG, "It's our package")
-                    } else if (isSystemPackage(foregroundApp)) {
-                        Log.d(LOG_TAG, "It's a system app")
-                    } else if (isHomePackage(foregroundApp)) {
-                        Log.d(LOG_TAG, "It's the home package")
-                    } else {
-                        Log.d(LOG_TAG, "We want to block this, I think")
+            val runnable = object : Runnable {
+                override fun run() {
+                    if (shouldBlock()) {
+                        val foregroundApp =
+                            getForegroundApp(this@BlockingService, 4 * LOOP_INTERVAL)
+                        Log.d(LOG_TAG, "Foreground app detected: $foregroundApp")
+                        when {
+                            foregroundApp == null -> {
+                            }
+                            foregroundApp == packageName -> {
+                                Log.d(LOG_TAG, "It's our package")
+                            }
+                            isSystemPackage(foregroundApp) -> {
+                                Log.d(LOG_TAG, "It's a system app")
+                            }
+                            isHomePackage(foregroundApp) -> {
+                                Log.d(LOG_TAG, "It's the home package")
+                            }
+                            // TODO add whitelist
+                            else -> {
+                                Log.d(LOG_TAG, "We want to block this, I think")
+                                val goToHome = Intent(Intent.ACTION_MAIN)
+                                goToHome.addCategory(Intent.CATEGORY_HOME)
+                                goToHome.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(goToHome)
+                            }
+                        }
                     }
+                    mHandler.postDelayed(this, LOOP_INTERVAL)
                 }
-            }, LOOP_INTERVAL)
+            }
+            mHandler.postDelayed(runnable, 0)
         }
     }
 
@@ -204,7 +240,8 @@ class BlockingService : Service() {
         val checkHomeIntent = Intent(Intent.ACTION_MAIN)
         checkHomeIntent.addCategory(Intent.CATEGORY_HOME)
         val homePackage =
-            packageManager.resolveActivity(checkHomeIntent, PackageManager.MATCH_DEFAULT_ONLY).activityInfo.packageName
+            packageManager.resolveActivity(checkHomeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+                .activityInfo.packageName
         return packageName == homePackage
     }
 
@@ -226,10 +263,10 @@ class BlockingService : Service() {
 
     private fun getNotificationBuilder(): NotificationCompat.Builder {
         return NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
-            .setContentText("Blocking apps, tap to reflect now")
             .setSmallIcon(R.drawable.ic_block)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setColor(ContextCompat.getColor(this.applicationContext, R.color.colorPrimary))
     }
 
     private fun postponeBlocking() {
@@ -244,11 +281,14 @@ class BlockingService : Service() {
                 max(lastPostponeTime!! + POSTPONE_INTERVAL, System.currentTimeMillis())
             }
 
+            val postponeUntilStr =
+                DateFormat.getTimeInstance().format(Date(lastPostponeTime!! + POSTPONE_INTERVAL))
             builder
+                .setContentText("Postponed until $postponeUntilStr")
                 .addAction(
                     R.drawable.ic_postpone,
                     "Postpone (${POSTPONE_LIMIT - nPostpones} left)",
-                    getBroadcastIntent(ACTION_POSTPONE, false)
+                    getServiceIntent(ACTION_POSTPONE, false)
                 )
                 .setContentIntent(
                     PendingIntent.getActivity(
@@ -265,7 +305,11 @@ class BlockingService : Service() {
     }
 
     private fun disableBlocking() {
-        mAlarmManager.cancel(getBroadcastIntent(ACTION_BEGIN_BLOCKING, true))
+        Log.d(LOG_TAG, "disabling blocking")
+        val intent = getServiceIntent(ACTION_BEGIN_BLOCKING, true)
+        if (intent != null) {
+            mAlarmManager.cancel(intent)
+        }
         blockingEnabled = false
         stopBlockingIfNeeded()
     }
@@ -291,8 +335,9 @@ class BlockingService : Service() {
     }
 
     private fun getForegroundApp(context: Context, interval: Long): String? {
-        if (UsageStatsPermissions.hasUsageStatsPermission(context)) {
-            val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val appContext = context.applicationContext
+        return if (UsageStatsPermissions.hasUsageStatsPermission(appContext)) {
+            val usm = appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val time = System.currentTimeMillis()
             val events = usm.queryEvents(time - interval, time)
             val event = UsageEvents.Event()
@@ -302,17 +347,7 @@ class BlockingService : Service() {
                     foregroundApp = event.packageName
                 }
             }
-            return foregroundApp
-        } else return null
-    }
-
-    inner class BlockingReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                ACTION_BEGIN_BLOCKING -> beginBlockingIfNeeded()
-                ACTION_POSTPONE -> postponeBlocking()
-                ACTION_STOP_BLOCKING -> stopBlockingIfNeeded()
-            }
-        }
+            foregroundApp
+        } else null
     }
 }
