@@ -38,11 +38,11 @@ class UsageStatsPermissions {
                 // Use the Builder class for convenient dialog construction
                 val builder = AlertDialog.Builder(it)
                 builder.setMessage("This app requires usage stats to help keep you on task. This must be done by the user in settings.")
-                    .setPositiveButton("Go to settings") { dialog, id ->
+                    .setPositiveButton("Go to settings") { _, _ ->
                         // FIRE ZE MISSILES!
                         requestUsageStatsPermission(activity.applicationContext)
                     }
-                    .setNegativeButton("Cancel") { dialog, id ->
+                    .setNegativeButton("Cancel") { _, _ ->
                         // User cancelled the dialog
                         activity.finishAndRemoveTask()
                     }

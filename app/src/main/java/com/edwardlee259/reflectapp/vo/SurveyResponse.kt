@@ -1,9 +1,6 @@
 package com.edwardlee259.reflectapp.vo
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
@@ -14,7 +11,8 @@ import java.util.*
         parentColumns = ["uuid"],
         childColumns = ["question_id"],
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    indices = [Index(value = ["question_id"])]
 )
 data class SurveyResponse(
     @PrimaryKey

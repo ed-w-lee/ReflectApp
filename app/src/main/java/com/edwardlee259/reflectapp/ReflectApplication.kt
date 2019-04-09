@@ -3,6 +3,7 @@ package com.edwardlee259.reflectapp
 import android.app.Application
 import com.edwardlee259.reflectapp.di.ApplicationComponent
 import com.edwardlee259.reflectapp.di.ApplicationModule
+import com.edwardlee259.reflectapp.di.DaggerApplicationComponent
 import com.edwardlee259.reflectapp.di.RoomModule
 
 class ReflectApplication : Application() {

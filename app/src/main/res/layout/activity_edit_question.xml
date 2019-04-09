@@ -7,6 +7,7 @@
     tools:context=".ui.edit.EditQuestionActivity">
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -23,6 +24,16 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Required" />
+
+            <Switch
+                android:id="@+id/required_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -62,14 +73,24 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
+        android:id="@+id/question_finish_btn"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:text="OK"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/question_cancel_btn"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/question_cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/question_finish_btn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

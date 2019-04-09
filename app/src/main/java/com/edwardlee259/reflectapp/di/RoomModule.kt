@@ -18,7 +18,7 @@ class RoomModule(application: Application) {
 
     @Provides
     @Singleton
-    fun provideSurveyDatabase(application: Application): SurveyDatabase = database
+    fun provideSurveyDatabase(): SurveyDatabase = database
 
     @Provides
     @Singleton
@@ -28,7 +28,6 @@ class RoomModule(application: Application) {
     @Singleton
     fun provideSurveyRepository(surveyDao: SurveyDao): SurveyRepository =
         SurveyRepository(database, surveyDao)
-
 
     @Provides
     @Singleton

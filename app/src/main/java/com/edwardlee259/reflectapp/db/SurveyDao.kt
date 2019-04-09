@@ -26,7 +26,7 @@ abstract class SurveyDao {
     @Query("SELECT * FROM survey_responses WHERE question_id = :questionId")
     abstract fun loadResponses(questionId: String): LiveData<List<SurveyResponse>>
 
-    @Delete
+    @Query("DELETE FROM survey_questions WHERE uuid=:questionId")
     abstract fun deleteQuestion(vararg questionId: String)
 
 }

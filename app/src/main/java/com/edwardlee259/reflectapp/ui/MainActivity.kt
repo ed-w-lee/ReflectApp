@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-        service_toggle_btn.setOnClickListener { v ->
+        service_toggle_btn.setOnClickListener {
             if (mServiceRunning) {
                 val intent = Intent(this, BlockingService::class.java)
                 stopService(intent)
@@ -65,13 +65,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        edit_survey.setOnClickListener { v ->
+        edit_survey.setOnClickListener {
             startActivity(Intent(this, EditSurveyActivity::class.java))
         }
-        take_survey.setOnClickListener { v ->
+        take_survey.setOnClickListener {
             startActivity(Intent(this, SurveyActivity::class.java))
         }
-        view_responses.setOnClickListener { v ->
+        view_responses.setOnClickListener {
             Toast.makeText(this, "Still need to implement", Toast.LENGTH_SHORT).show()
         }
     }

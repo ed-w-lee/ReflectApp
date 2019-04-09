@@ -59,6 +59,14 @@ class EditSurveyQuestionListAdapter(context: Activity) :
             }
             holder.questionTextView.text = surveyQuestion.question
             holder.descriptionTextView.text = surveyQuestion.description
+            holder.requiredView.setTextColor(
+                mContext.getColor(
+                    when (surveyQuestion.required) {
+                        true -> R.color.colorRequired
+                        false -> R.color.colorOptional
+                    }
+                )
+            )
         } else {
             holder.questionTextView.text = "QUESTION OUT OF BOUNDS"
         }
@@ -81,6 +89,7 @@ class EditSurveyQuestionListAdapter(context: Activity) :
         val typeIconView: ImageView = itemView.findViewById(R.id.type_icon)
         val questionTextView: TextView = itemView.findViewById(R.id.question_text)
         val descriptionTextView: TextView = itemView.findViewById(R.id.description_text)
+        val requiredView: TextView = itemView.findViewById(R.id.required_icon)
 
         override fun onClick(v: View?) {
             val currentQuestion = mSurveyQuestions?.get(adapterPosition)

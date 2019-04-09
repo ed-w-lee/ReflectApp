@@ -90,10 +90,10 @@ class EditSurveyActivity : AppCompatActivity() {
                     builder.setMessage("Deleting a question will delete all stored responses. Is that ok?")
                         .setPositiveButton("OK") { dialog, _ ->
                             // Your action
-                            surveyQuestionViewModel.deleteQuestion(questionToDelete.id)
+                            surveyQuestionViewModel.deleteQuestion(questionToDelete.uuid)
                             dialog.dismiss()
                         }
-                        .setNegativeButton("CANCEL") { dialog, arg1 ->
+                        .setNegativeButton("CANCEL") { dialog, _ ->
                             adapter.notifyItemChanged(viewHolder.adapterPosition)
                             dialog.cancel()
                         }
