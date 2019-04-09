@@ -26,7 +26,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edwardlee259.reflectapp.ui.MainActivity" />
         </activity>
-        <activity android:name=".ui.edit.EditQuestionActivity" />
+        <activity
+            android:name=".ui.edit.EditQuestionActivity"
+            android:label="Edit Your Question"
+            android:parentActivityName=".ui.edit.EditSurveyActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edwardlee259.reflectapp.ui.edit.EditSurveyActivity" />
+        </activity>
         <activity android:name=".ui.fill.SurveyActivity" />
         <activity
             android:name=".ui.settings.SettingsActivity"

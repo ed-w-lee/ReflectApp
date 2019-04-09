@@ -9,7 +9,7 @@
     <string name="nav_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
     <string name="service_description">Service to block apps daily when reflection is due.</string>
-    <string name="title_activity_edit_survey">EditSurveyActivity</string>
+    <string name="title_activity_edit_survey">Edit Your Survey</string>
 
     <!-- Keys for preferences -->
 </resources>

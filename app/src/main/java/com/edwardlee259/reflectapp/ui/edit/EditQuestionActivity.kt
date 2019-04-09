@@ -26,6 +26,8 @@ class EditQuestionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_question)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         question_finish_btn.setOnClickListener {
             if (question_text.text.isEmpty()) {
                 Toast.makeText(this, "Question cannot be empty", Toast.LENGTH_SHORT).show()
