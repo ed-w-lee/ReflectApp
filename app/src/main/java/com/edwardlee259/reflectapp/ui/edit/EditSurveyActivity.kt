@@ -80,7 +80,7 @@ class EditSurveyActivity : AppCompatActivity() {
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.RIGHT
         ) {
-            var dragFrom: Int = -1
+            var draggingQuestion: SurveyQuestion? = null
             var dragTo: Int = -1
 
             override fun onMove(
@@ -90,7 +90,9 @@ class EditSurveyActivity : AppCompatActivity() {
             ): Boolean {
                 val fromPos = viewHolder.adapterPosition
                 val toPos = target.adapterPosition
-                dragFrom = fromPos
+                if (draggingQuestion == null) {
+                    draggingQuestion = mAdapter.getQuestionAtPosition(fromPos)
+                }
                 dragTo = toPos
                 mAdapter.onItemMove(fromPos, toPos)
                 return true
@@ -120,14 +122,20 @@ class EditSurveyActivity : AppCompatActivity() {
             ) {
                 super.clearView(recyclerView, viewHolder)
 
-                if (dragFrom != -1 && dragTo != -1 && dragFrom != dragTo) {
-                    val questionToUpdate = mAdapter.getQuestionAtPosition(dragFrom)
-                    if (questionToUpdate != null) {
-                        questionToUpdate.order = getOrderAt(mAdapter, dragTo)
-                        surveyQuestionViewModel.updateQuestion(questionToUpdate)
-                    }
+                if (draggingQuestion != null && dragTo != -1) {
+                    val questionToUpdate: SurveyQuestion = draggingQuestion!!
+                    questionToUpdate.order = getOrderAt(mAdapter, dragTo)
+                    Log.d(
+                        "EDIT_SURVEY_ACTIVITY",
+                        "dragging question (%s) to index (%d), updating to order (%d)".format(
+                            questionToUpdate.question,
+                            dragTo,
+                            questionToUpdate.order
+                        )
+                    )
+                    surveyQuestionViewModel.updateQuestion(questionToUpdate)
                 }
-                dragFrom = -1
+                draggingQuestion = null
                 dragTo = -1
             }
         })
@@ -139,7 +147,8 @@ class EditSurveyActivity : AppCompatActivity() {
             adapter.getQuestionAtPosition(position - 1)?.order ?: Long.MIN_VALUE
         val orderAfter =
             adapter.getQuestionAtPosition(position + 1)?.order ?: Long.MAX_VALUE
-        return (orderBefore + orderAfter) / 2
+        Log.d("EDIT_SURVEY_ACTIVITY", "before: (%d), after: (%d)".format(orderBefore, orderAfter))
+        return orderBefore / 2 + orderAfter / 2 + (orderBefore % 2 + orderAfter % 2) / 2
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

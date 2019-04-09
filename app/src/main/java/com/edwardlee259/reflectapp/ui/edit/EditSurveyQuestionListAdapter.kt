@@ -80,6 +80,7 @@ class EditSurveyQuestionListAdapter(context: Activity, listener: OnItemClickList
 
     fun setSurveyQuestions(questions: List<SurveyQuestion>?) {
         mSurveyQuestions = questions
+        mSurveyQuestions?.sortedBy { it.order }
         notifyDataSetChanged()
     }
 
@@ -90,7 +91,7 @@ class EditSurveyQuestionListAdapter(context: Activity, listener: OnItemClickList
 
     fun getQuestionAtPosition(position: Int): SurveyQuestion? {
         if (mSurveyQuestions != null && position >= 0 && position < mSurveyQuestions!!.size) {
-            return mSurveyQuestions?.get(position)
+            return mSurveyQuestions!![position]
         }
         return null
     }
