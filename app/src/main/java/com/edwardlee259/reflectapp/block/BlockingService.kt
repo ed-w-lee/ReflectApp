@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.edwardlee259.reflectapp.R
-import com.edwardlee259.reflectapp.ui.MainActivity
+import com.edwardlee259.reflectapp.ui.SurveyActivity
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import java.text.DateFormat
 import java.util.*
@@ -117,8 +117,7 @@ class BlockingService : Service() {
     }
 
     private fun getReflectIntent(): Intent {
-        // TODO replace MainActivity with ReflectActivity once it's created
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, SurveyActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return intent
     }
