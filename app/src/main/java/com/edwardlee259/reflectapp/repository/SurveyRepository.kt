@@ -27,7 +27,20 @@ class SurveyRepository @Inject constructor(
     class InsertQuestionAsyncTask(dao: SurveyDao) : AsyncTask<SurveyQuestion, Void, Void>() {
         private val mDao = dao
         override fun doInBackground(vararg params: SurveyQuestion?): Void? {
-            params[0]?.let { mDao.insert(it) }
+            params[0]?.let { mDao.insertQuestion(it) }
+            return null
+        }
+    }
+
+    fun updateQuestion(question: SurveyQuestion) {
+        question.modified = System.currentTimeMillis()
+        UpdateQuestionAsyncTask(surveyDao).execute(question)
+    }
+
+    class UpdateQuestionAsyncTask(dao: SurveyDao) : AsyncTask<SurveyQuestion, Void, Void>() {
+        private val mDao = dao
+        override fun doInBackground(vararg params: SurveyQuestion?): Void? {
+            params[0]?.let { mDao.updateQuestion(it) }
             return null
         }
     }

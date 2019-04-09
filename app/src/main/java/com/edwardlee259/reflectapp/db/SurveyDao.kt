@@ -9,7 +9,10 @@ import com.edwardlee259.reflectapp.vo.SurveyResponse
 abstract class SurveyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(vararg surveyQuestions: SurveyQuestion)
+    abstract fun insertQuestion(vararg surveyQuestions: SurveyQuestion)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun updateQuestion(surveyQuestion: SurveyQuestion)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertSurveyQuestions(surveyQuestions: List<SurveyQuestion>)

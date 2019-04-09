@@ -1,12 +1,15 @@
 package com.edwardlee259.reflectapp.vo
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 import java.util.*
 
 @Entity(
-    tableName = "survey_questions"
+    tableName = "survey_questions",
+    indices = [Index(value = ["order"], unique = true)]
 )
 data class SurveyQuestion(
     @PrimaryKey
@@ -15,18 +18,18 @@ data class SurveyQuestion(
     @field:SerializedName("created")
     val created: Long = System.currentTimeMillis(),
     @field:SerializedName("modified")
-    val modified: Long = System.currentTimeMillis(),
+    var modified: Long = System.currentTimeMillis(),
     @field:SerializedName("required")
-    val required: Boolean,
+    var required: Boolean,
     @field:SerializedName("question")
-    val question: String,
+    var question: String,
     @field:SerializedName("questionType")
-    val questionType: QuestionType,
+    var questionType: QuestionType,
     @field:SerializedName("description")
-    val description: String,
+    var description: String,
     @field:SerializedName("order")
-    val order: Long
-) {
+    var order: Long
+) : Serializable {
     enum class QuestionType {
         NUMERIC,
         RATING,
