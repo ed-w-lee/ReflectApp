@@ -16,6 +16,7 @@ way of holding myself accountable in keeping track of things like:
 * keeping a good fitness schedule
 * making sure I eat healthy
 * continue learning
+
 Also, it seemed like a good side project to keep me productive during spring
 break, and let me play around with Android primarily and hopefully other
 technologies (web, NLP, etc.) in the future.

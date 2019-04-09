@@ -6,10 +6,10 @@
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
-
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
+        android:name=".ReflectApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,27 +17,36 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity
+            android:name=".ui.EditSurveyActivity"
+            android:label="@string/title_activity_edit_survey"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edwardlee259.reflectapp.ui.MainActivity" />
+        </activity>
+        <activity android:name=".ui.EditQuestionActivity" />
+        <activity android:name=".ui.SurveyActivity" />
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
-
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
             android:name=".block.BlockingService"
-            android:label="@string/service_description"
+            android:enabled="true"
             android:exported="false"
-            android:enabled="true" />
-
+            android:label="@string/service_description" />
     </application>
 
 </manifest>

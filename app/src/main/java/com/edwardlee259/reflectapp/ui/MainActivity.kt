@@ -1,12 +1,15 @@
 package com.edwardlee259.reflectapp.ui
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.preference.PreferenceManager
 import com.edwardlee259.reflectapp.R
 import com.edwardlee259.reflectapp.block.BlockingService
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
@@ -16,6 +19,10 @@ import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var mSharedPreferences: SharedPreferences
+    private var mServiceRunning: Boolean = false
+    private lateinit var mListener: SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,20 +39,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        start_service_btn.setOnClickListener { v ->
-            val dialog = UsageStatsPermissions.requestPermissionsDialog(this)
-            if (dialog != null) {
-                dialog.show()
-            } else {
+        mListener =
+            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+                if (key == getString(R.string.pref_key_service_status)) {
+                    val serviceIsStopped = sharedPreferences.getBoolean(key, true)
+                    setServiceToggle(!serviceIsStopped)
+                }
+            }
+
+        service_toggle_btn.setOnClickListener { v ->
+            if (mServiceRunning) {
                 val intent = Intent(this, BlockingService::class.java)
-                startService(intent)
+                stopService(intent)
+            } else {
+                val dialog = UsageStatsPermissions.requestPermissionsDialog(this)
+                if (dialog != null) {
+                    dialog.show()
+                } else {
+                    val intent = Intent(this, BlockingService::class.java)
+                    startService(intent)
+                }
             }
         }
-        stop_service_btn.setOnClickListener { v ->
-            val intent = Intent(this, BlockingService::class.java)
-            stopService(intent)
-        }
 
+        edit_survey.setOnClickListener { v ->
+            startActivity(Intent(this, EditSurveyActivity::class.java))
+        }
+        take_survey.setOnClickListener { v ->
+            startActivity(Intent(this, SurveyActivity::class.java))
+        }
+        view_responses.setOnClickListener { v ->
+            Toast.makeText(this, "Still need to implement", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val isServiceStopped = PreferenceManager.getDefaultSharedPreferences(this)
+            .getBoolean(getString(R.string.pref_key_service_status), true)
+        setServiceToggle(!isServiceStopped)
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(mListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .unregisterOnSharedPreferenceChangeListener(mListener)
+    }
+
+    private fun setServiceToggle(isServiceRunning: Boolean) {
+        if (isServiceRunning) {
+            mServiceRunning = true
+            service_toggle_btn.text = "Stop Service"
+        } else {
+            mServiceRunning = false
+            service_toggle_btn.text = "Start Service"
+        }
     }
 
     override fun onBackPressed() {
