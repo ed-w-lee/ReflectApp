@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.edwardlee259.reflectapp.R
-import com.edwardlee259.reflectapp.ui.SurveyActivity
+import com.edwardlee259.reflectapp.ui.fill.SurveyActivity
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import java.text.DateFormat
 import java.util.*

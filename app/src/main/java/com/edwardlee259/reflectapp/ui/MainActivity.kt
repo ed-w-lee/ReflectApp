@@ -12,6 +12,9 @@ import androidx.core.view.GravityCompat
 import androidx.preference.PreferenceManager
 import com.edwardlee259.reflectapp.R
 import com.edwardlee259.reflectapp.block.BlockingService
+import com.edwardlee259.reflectapp.ui.edit.EditSurveyActivity
+import com.edwardlee259.reflectapp.ui.fill.SurveyActivity
+import com.edwardlee259.reflectapp.ui.settings.SettingsActivity
 import com.edwardlee259.reflectapp.utils.UsageStatsPermissions
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*

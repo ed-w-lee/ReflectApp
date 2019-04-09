@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".ui.EditSurveyActivity"
+            android:name=".ui.edit.EditSurveyActivity"
             android:label="@string/title_activity_edit_survey"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -26,10 +26,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edwardlee259.reflectapp.ui.MainActivity" />
         </activity>
-        <activity android:name=".ui.EditQuestionActivity" />
-        <activity android:name=".ui.SurveyActivity" />
+        <activity android:name=".ui.edit.EditQuestionActivity" />
+        <activity android:name=".ui.fill.SurveyActivity" />
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".ui.MainActivity"

@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.EditSurveyActivity"
+    tools:context=".ui.edit.EditSurveyActivity"
     tools:showIn="@layout/activity_edit_survey">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/edit_survey_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"

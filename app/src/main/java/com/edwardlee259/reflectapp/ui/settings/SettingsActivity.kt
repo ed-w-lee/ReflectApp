@@ -1,4 +1,4 @@
-package com.edwardlee259.reflectapp.ui
+package com.edwardlee259.reflectapp.ui.settings
 
 import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
@@ -24,7 +24,10 @@ class SettingsActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_container, SettingsFragment()).commit()
+            .add(
+                R.id.fragment_container,
+                SettingsFragment()
+            ).commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -112,7 +115,10 @@ class SettingsActivity : AppCompatActivity() {
         override fun onDisplayPreferenceDialog(preference: Preference?) {
             var dialogFragment: DialogFragment? = null
             if (preference is TimeDialogPreference) {
-                dialogFragment = TimePreferenceDialogCompat.newInstance(preference.key)
+                dialogFragment =
+                    TimePreferenceDialogCompat.newInstance(
+                        preference.key
+                    )
             }
 
             if (dialogFragment != null) {

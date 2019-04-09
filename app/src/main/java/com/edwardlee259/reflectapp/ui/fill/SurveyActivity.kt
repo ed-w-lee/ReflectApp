@@ -1,4 +1,4 @@
-package com.edwardlee259.reflectapp.ui
+package com.edwardlee259.reflectapp.ui.fill
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

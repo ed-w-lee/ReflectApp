@@ -1,4 +1,4 @@
-package com.edwardlee259.reflectapp.ui
+package com.edwardlee259.reflectapp.ui.settings
 
 import android.content.Context
 import android.content.res.TypedArray

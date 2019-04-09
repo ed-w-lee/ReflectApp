@@ -17,7 +17,7 @@
         app:key="@string/pref_key_blocking"
         app:title="Block apps" />
 
-    <com.edwardlee259.reflectapp.ui.TimeDialogPreference
+    <com.edwardlee259.reflectapp.ui.settings.TimeDialogPreference
         app:dependency="blocking"
         app:key="@string/pref_key_blocking_start_time"
         app:title="Time to begin blocking apps" />
