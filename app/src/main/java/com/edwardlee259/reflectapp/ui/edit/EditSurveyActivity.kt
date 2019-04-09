@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edwardlee259.reflectapp.R
 import com.edwardlee259.reflectapp.ReflectApplication
 import com.edwardlee259.reflectapp.viewmodel.SurveyQuestionViewModel
+import com.edwardlee259.reflectapp.vo.SurveyQuestion
 import kotlinx.android.synthetic.main.activity_edit_survey.*
 import javax.inject.Inject
 
@@ -38,6 +41,9 @@ class EditSurveyActivity : AppCompatActivity() {
 
         // set up adapter
         val recyclerView: RecyclerView = findViewById(R.id.edit_survey_recycler_view)
+        val adapter = EditSurveyQuestionListAdapter(this)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         // inject dependencies in
         (this.application as ReflectApplication).getApplicationComponent().inject(this)
@@ -45,7 +51,12 @@ class EditSurveyActivity : AppCompatActivity() {
         // observe ViewModel
         surveyQuestionViewModel =
             ViewModelProviders.of(this).get(SurveyQuestionViewModel::class.java)
+        surveyQuestionViewModel.getAllQuestions()
+            .observe(this, Observer { questions: List<SurveyQuestion> ->
+                adapter.setSurveyQuestions(questions)
+            })
 
+        // TODO add ItemTouchHelper
     }
 
 
