@@ -12,12 +12,13 @@ import com.edwardlee259.reflectapp.R
 import com.edwardlee259.reflectapp.vo.SurveyQuestion
 import java.util.*
 
-class EditSurveyQuestionListAdapter(context: Activity) :
+class EditSurveyQuestionListAdapter(context: Activity, listener: OnItemClickListener? = null) :
     RecyclerView.Adapter<EditSurveyQuestionListAdapter.EditSurveyQuestionViewHolder>() {
 
     private val mContext = context
     private val mInflater = LayoutInflater.from(context)
     private var mSurveyQuestions: List<SurveyQuestion>? = null
+    private val mListener: OnItemClickListener? = listener
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -67,6 +68,11 @@ class EditSurveyQuestionListAdapter(context: Activity) :
                     }
                 )
             )
+            if (mListener != null) {
+                holder.itemView.setOnClickListener {
+                    mListener.onItemClick(surveyQuestion)
+                }
+            }
         } else {
             holder.questionTextView.text = "QUESTION OUT OF BOUNDS"
         }
@@ -82,7 +88,12 @@ class EditSurveyQuestionListAdapter(context: Activity) :
         notifyItemMoved(fromPos, toPos)
     }
 
-    fun getQuestionAtPosition(position: Int): SurveyQuestion? = mSurveyQuestions?.get(position)
+    fun getQuestionAtPosition(position: Int): SurveyQuestion? {
+        if (mSurveyQuestions != null && position >= 0 && position < mSurveyQuestions!!.size) {
+            return mSurveyQuestions?.get(position)
+        }
+        return null
+    }
 
     inner class EditSurveyQuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
@@ -105,5 +116,9 @@ class EditSurveyQuestionListAdapter(context: Activity) :
                 )
             }
         }
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(question: SurveyQuestion)
     }
 }

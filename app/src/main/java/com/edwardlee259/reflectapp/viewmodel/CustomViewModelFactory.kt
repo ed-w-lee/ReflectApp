@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.edwardlee259.reflectapp.repository.SurveyRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CustomViewModelFactory @Inject constructor(repository: SurveyRepository) :
     ViewModelProvider.Factory {
 

@@ -1,6 +1,7 @@
 package com.edwardlee259.reflectapp.repository
 
 import android.os.AsyncTask
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.edwardlee259.reflectapp.db.SurveyDao
 import com.edwardlee259.reflectapp.db.SurveyDatabase
@@ -15,7 +16,9 @@ class SurveyRepository @Inject constructor(
     private val surveyDao: SurveyDao
 ) {
 
-    fun loadAllQuestions(): LiveData<List<SurveyQuestion>> = surveyDao.loadAllQuestions()
+    fun loadAllQuestions(): LiveData<List<SurveyQuestion>> {
+        return surveyDao.loadAllQuestions().also { Log.d("SURVEY_REPO", it.value?.size.toString()) }
+    }
 
     fun loadResponsesFor(questionId: String): LiveData<List<SurveyResponse>> =
         surveyDao.loadResponses(questionId)
@@ -27,7 +30,10 @@ class SurveyRepository @Inject constructor(
     class InsertQuestionAsyncTask(dao: SurveyDao) : AsyncTask<SurveyQuestion, Void, Void>() {
         private val mDao = dao
         override fun doInBackground(vararg params: SurveyQuestion?): Void? {
-            params[0]?.let { mDao.insertQuestion(it) }
+            params[0]?.let {
+                mDao.insertQuestion(it)
+                Log.d("SURVEY_REPO", it.toString())
+            }
             return null
         }
     }

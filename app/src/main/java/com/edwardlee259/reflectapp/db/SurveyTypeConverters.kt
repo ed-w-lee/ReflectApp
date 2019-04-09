@@ -14,6 +14,6 @@ object SurveyTypeConverters {
     @TypeConverter
     @JvmStatic
     fun questionTypeToString(questionType: SurveyQuestion.QuestionType?): String? {
-        return questionType.toString()
+        return questionType?.name
     }
 }

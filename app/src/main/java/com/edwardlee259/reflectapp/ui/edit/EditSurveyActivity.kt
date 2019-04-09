@@ -3,6 +3,7 @@ package com.edwardlee259.reflectapp.ui.edit
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +34,8 @@ class EditSurveyActivity : AppCompatActivity() {
 
     lateinit var surveyQuestionViewModel: SurveyQuestionViewModel
 
+    lateinit var mAdapter: EditSurveyQuestionListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_survey)
@@ -48,8 +51,17 @@ class EditSurveyActivity : AppCompatActivity() {
 
         // set up adapter
         val recyclerView: RecyclerView = findViewById(R.id.edit_survey_recycler_view)
-        val adapter = EditSurveyQuestionListAdapter(this)
-        recyclerView.adapter = adapter
+        mAdapter = EditSurveyQuestionListAdapter(
+            this,
+            object : EditSurveyQuestionListAdapter.OnItemClickListener {
+                override fun onItemClick(question: SurveyQuestion) {
+                    val editIntent =
+                        Intent(this@EditSurveyActivity, EditQuestionActivity::class.java)
+                    editIntent.putExtra(INTENT_QUESTION_KEY, question)
+                    startActivityForResult(editIntent, UPDATE_QUESTION_ACTIVITY_REQUEST_CODE)
+                }
+            })
+        recyclerView.adapter = mAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // inject dependencies in
@@ -57,10 +69,11 @@ class EditSurveyActivity : AppCompatActivity() {
 
         // observe ViewModel
         surveyQuestionViewModel =
-            ViewModelProviders.of(this).get(SurveyQuestionViewModel::class.java)
+            ViewModelProviders.of(this, viewModelFactory).get(SurveyQuestionViewModel::class.java)
         surveyQuestionViewModel.getAllQuestions()
             .observe(this, Observer { questions: List<SurveyQuestion> ->
-                adapter.setSurveyQuestions(questions)
+                Log.d("EDIT_SURVEY_ACTIVITY", questions.joinToString())
+                mAdapter.setSurveyQuestions(questions)
             })
 
         val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
@@ -79,12 +92,12 @@ class EditSurveyActivity : AppCompatActivity() {
                 val toPos = target.adapterPosition
                 dragFrom = fromPos
                 dragTo = toPos
-                adapter.onItemMove(fromPos, toPos)
+                mAdapter.onItemMove(fromPos, toPos)
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val questionToDelete = adapter.getQuestionAtPosition(viewHolder.adapterPosition)
+                val questionToDelete = mAdapter.getQuestionAtPosition(viewHolder.adapterPosition)
                 if (questionToDelete != null) {
                     val builder = AlertDialog.Builder(this@EditSurveyActivity)
                     builder.setMessage("Deleting a question will delete all stored responses. Is that ok?")
@@ -94,7 +107,7 @@ class EditSurveyActivity : AppCompatActivity() {
                             dialog.dismiss()
                         }
                         .setNegativeButton("CANCEL") { dialog, _ ->
-                            adapter.notifyItemChanged(viewHolder.adapterPosition)
+                            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
                             dialog.cancel()
                         }
                         .create().show()
@@ -108,13 +121,9 @@ class EditSurveyActivity : AppCompatActivity() {
                 super.clearView(recyclerView, viewHolder)
 
                 if (dragFrom != -1 && dragTo != -1 && dragFrom != dragTo) {
-                    val questionToUpdate = adapter.getQuestionAtPosition(dragFrom)
+                    val questionToUpdate = mAdapter.getQuestionAtPosition(dragFrom)
                     if (questionToUpdate != null) {
-                        val orderBefore =
-                            adapter.getQuestionAtPosition(dragTo - 1)?.order ?: Long.MIN_VALUE
-                        val orderAfter =
-                            adapter.getQuestionAtPosition(dragTo + 1)?.order ?: Long.MAX_VALUE
-                        questionToUpdate.order = (orderBefore + orderAfter) / 2
+                        questionToUpdate.order = getOrderAt(mAdapter, dragTo)
                         surveyQuestionViewModel.updateQuestion(questionToUpdate)
                     }
                 }
@@ -125,6 +134,14 @@ class EditSurveyActivity : AppCompatActivity() {
         helper.attachToRecyclerView(recyclerView)
     }
 
+    private fun getOrderAt(adapter: EditSurveyQuestionListAdapter, position: Int): Long {
+        val orderBefore =
+            adapter.getQuestionAtPosition(position - 1)?.order ?: Long.MIN_VALUE
+        val orderAfter =
+            adapter.getQuestionAtPosition(position + 1)?.order ?: Long.MAX_VALUE
+        return (orderBefore + orderAfter) / 2
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -133,6 +150,7 @@ class EditSurveyActivity : AppCompatActivity() {
                 NEW_QUESTION_ACTIVITY_REQUEST_CODE -> {
                     val question =
                         data.getSerializableExtra(EditQuestionActivity.EXTRA_REPLY) as SurveyQuestion
+                    question.order = getOrderAt(mAdapter, mAdapter.itemCount)
                     surveyQuestionViewModel.insertQuestion(question)
                 }
                 UPDATE_QUESTION_ACTIVITY_REQUEST_CODE -> {

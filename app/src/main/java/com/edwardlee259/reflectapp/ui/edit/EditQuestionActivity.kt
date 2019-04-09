@@ -32,7 +32,7 @@ class EditQuestionActivity : AppCompatActivity() {
             }
 
             val replyIntent = Intent()
-            if (questionToReturn != null) {
+            if (questionToReturn == null) {
                 questionToReturn = SurveyQuestion(
                     required = required_toggle.isChecked,
                     question = question_text.text.toString(),
@@ -74,7 +74,7 @@ class EditQuestionActivity : AppCompatActivity() {
             required_toggle.isChecked = savedInstanceState.getBoolean(SAVED_REQUIRED_KEY, true)
         } else {
             questionToReturn =
-                this.intent.getSerializableExtra(EditSurveyActivity.INTENT_QUESTION_KEY) as SurveyQuestion
+                this.intent.getSerializableExtra(EditSurveyActivity.INTENT_QUESTION_KEY) as SurveyQuestion?
             if (questionToReturn != null) {
                 question_text.setText(questionToReturn!!.question)
                 description_text.setText(questionToReturn!!.description)

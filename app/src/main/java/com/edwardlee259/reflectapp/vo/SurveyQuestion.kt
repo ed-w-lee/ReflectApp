@@ -31,7 +31,7 @@ data class SurveyQuestion(
     @field:SerializedName("description")
     var description: String,
     @field:SerializedName("order")
-    var order: Long = -1
+    var order: Long = Long.MAX_VALUE
 ) : Serializable {
     enum class QuestionType(private val readable: String) {
         NUMERIC("Numeric"),
