@@ -23,15 +23,11 @@ technologies (web, NLP, etc.) in the future.
 
 ## What features are you adding next?
 Highest being most important:
-* **survey tracking** - create the activity that will allow users to fill in a
-  survey and store those responses in some database
-* **customizable surveys** - Users should be able to create their own surveys
-  that they want to fill out with metrics they want to track.
-* **clean up code** - hopefully make it easier to navigate
-* **add tests** - figure out how to actually do tests and whatnot
-* **data visualization** - some way of graphing responses over time
-* **blocking levels** - have different levels of blocking (all apps blocked, no
-  apps blocked, obnoxious notification, etc.)
 * **app whitelist** - don't just allow only system apps (which includes apps
   like Youtube, Photos, etc.) allow for a user-defined whitelist
+* **add tests** - figure out how to actually do tests and whatnot
+* **data visualization** - some way of graphing responses over time
 * **web sync** - sync up responses to some web server
+* **clean up code** - hopefully make it easier to navigate
+* **blocking levels** - have different levels of blocking (all apps blocked, no
+  apps blocked, obnoxious notification, etc.)
