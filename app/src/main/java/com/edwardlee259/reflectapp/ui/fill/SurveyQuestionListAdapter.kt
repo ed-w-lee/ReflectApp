@@ -85,10 +85,14 @@ class SurveyQuestionListAdapter(context: Activity) :
                 (holder as SurveyTextViewHolder).let {
                     it.listener.updatePosition(holder.adapterPosition)
                     it.fieldTextView.setText(mResponses?.get(holder.adapterPosition) ?: "")
+                    val starToAdd =
+                        if (question?.required == true) {
+                            "<font color=red>*</font>"
+                        } else ""
                     it.questionTextView.text = Html.fromHtml(
                         Html.escapeHtml(
                             question?.question ?: ""
-                        ) + "<font color=red>*</font>"
+                        ) + starToAdd
                     )
                     it.descriptionTextView.text = question?.description ?: ""
                     if (holder.adapterPosition in mUnfilledList) {
@@ -102,7 +106,15 @@ class SurveyQuestionListAdapter(context: Activity) :
                     it.listener.updatePosition(holder.adapterPosition)
                     it.ratingBarView.rating =
                         (mResponses?.get(holder.adapterPosition) ?: "0").toFloat()
-                    it.questionTextView.text = question?.question ?: ""
+                    val starToAdd =
+                        if (question?.required == true) {
+                            "<font color=red>*</font>"
+                        } else ""
+                    it.questionTextView.text = Html.fromHtml(
+                        Html.escapeHtml(
+                            question?.question ?: ""
+                        ) + starToAdd
+                    )
                     it.descriptionTextView.text = question?.description ?: ""
                 }
             }
