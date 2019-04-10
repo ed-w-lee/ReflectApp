@@ -41,7 +41,7 @@ class EditSurveyActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_survey)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             startActivityForResult(
                 Intent(this, EditQuestionActivity::class.java),
                 NEW_QUESTION_ACTIVITY_REQUEST_CODE

@@ -58,7 +58,10 @@ class SurveyRepository @Inject constructor(
     class InsertResponsesAsyncTask(dao: SurveyDao) : AsyncTask<List<SurveyResponse>, Void, Void>() {
         private val mDao = dao
         override fun doInBackground(vararg params: List<SurveyResponse>?): Void? {
-            params[0]?.let { mDao.insertSurveyResponses(it) }
+            params[0]?.let {
+                Log.d("SURVEY_REPO", it.joinToString { res -> res.response })
+                mDao.insertSurveyResponses(it)
+            }
             return null
         }
     }

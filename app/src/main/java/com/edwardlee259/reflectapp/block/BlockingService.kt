@@ -290,18 +290,20 @@ class BlockingService : Service() {
             mAlarmManager.cancel(intent)
         }
         blockingEnabled = false
-        stopBlockingIfNeeded()
+        stopBlockingIfNeeded(true)
     }
 
-    private fun stopBlockingIfNeeded() {
+    private fun stopBlockingIfNeeded(done: Boolean = false) {
         mHandler.removeCallbacksAndMessages(null)
         currentlyBlocking = false
         lastPostponeTime = null
         nPostpones = 0
         stopForeground(false)
 
+        val content = if (done) "Service stopped." else "Thanks for reflecting! See you tomorrow."
+
         val builder = getNotificationBuilder()
-            .setContentText("Thanks for reflecting! See you tomorrow.")
+            .setContentText(content)
             .setAutoCancel(true)
             .setSmallIcon(R.drawable.ic_done)
         mNotifyManager.notify(NOTIFICATION_ID, builder.build())

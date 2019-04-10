@@ -27,12 +27,11 @@ class TimeDialogPreference : DialogPreference {
     fun setTime(time: Int) {
         mTime = time
         persistInt(time)
-
-        val hours = when (time / 60) {
-            0 -> 12
-            else -> time / 60
-        }.toString()
-        val minutes = (time % 60).toString()
+//        val hours = when (time / 60) {
+//            0 -> 12
+//            else -> time / 60
+//        }.toString()
+//        val minutes = (time % 60).toString()
     }
 
     override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {

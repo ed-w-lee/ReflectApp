@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
     android:orientation="vertical">
 
     <TextView
@@ -10,22 +11,26 @@
         style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="What is a question?" />
+        tools:text="What is a question blah blah blah blah blah balh?" />
 
     <TextView
         android:id="@+id/description_text"
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:textColor="@android:color/tertiary_text_light"
-        tools:text="This is a description." />
+        tools:text="This is a description. saroceusaoerc aro  aosceuh aesuc a aecuas ocuaoe ucaousaorechua u aoserc uaose u" />
 
     <FrameLayout
-        android:id="@+id/response_insert_point"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <RatingBar
+            android:id="@+id/response_field"
+            style="@android:style/Widget.Material.RatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5" />
     </FrameLayout>
 
 </LinearLayout>

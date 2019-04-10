@@ -33,10 +33,10 @@ data class SurveyQuestion(
     @field:SerializedName("order")
     var order: Long = Long.MAX_VALUE
 ) : Serializable {
-    enum class QuestionType(private val readable: String) {
-        NUMERIC("Numeric"),
-        RATING("Rating"),
-        TEXT("Text");
+    enum class QuestionType(private val readable: String, val num: Int) {
+        NUMERIC("Numeric", 1),
+        RATING("Rating", 2),
+        TEXT("Text", 3);
 
         override fun toString(): String {
             return readable
