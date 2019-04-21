@@ -31,6 +31,7 @@ class BlockingService : Service() {
         const val ACTION_BEGIN_BLOCKING = "com.edwardlee259.reflectapp.ACTION_BEGIN_BLOCKING"
         const val ACTION_POSTPONE = "com.edwardlee259.reflectapp.ACTION_POSTPONE"
         const val ACTION_STOP_BLOCKING = "com.edwardlee259.reflectapp.ACTION_STOP_BLOCKING"
+        const val ACTION_STOP_SERVICE = "com.edwardlee259.reflectapp.ACTION_STOP_SERVICE"
 
         private val POSTPONE_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES
         private val POSTPONE_LIMIT = 4
@@ -76,14 +77,6 @@ class BlockingService : Service() {
         }
     }
 
-    override fun onDestroy() {
-        Log.d(LOG_TAG, "destroying service")
-        disableBlocking()
-        mCurrSharedPreferences.edit().putBoolean(getString(R.string.pref_key_service_status), true)
-            .apply()
-        super.onDestroy()
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "start command sent with action: ${intent?.action}")
         when (intent?.action) {
@@ -95,6 +88,10 @@ class BlockingService : Service() {
             }
             ACTION_STOP_BLOCKING -> {
                 stopBlockingIfNeeded()
+            }
+            ACTION_STOP_SERVICE -> {
+                disableBlocking()
+                stopSelf()
             }
         }
 
@@ -291,6 +288,8 @@ class BlockingService : Service() {
         }
         blockingEnabled = false
         stopBlockingIfNeeded(true)
+        mCurrSharedPreferences.edit().putBoolean(getString(R.string.pref_key_service_status), true)
+            .apply()
     }
 
     private fun stopBlockingIfNeeded(done: Boolean = false) {

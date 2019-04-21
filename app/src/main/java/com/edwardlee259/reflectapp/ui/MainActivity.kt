@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         service_toggle_btn.setOnClickListener {
             if (mServiceRunning) {
                 val intent = Intent(this, BlockingService::class.java)
-                stopService(intent)
+                intent.action = BlockingService.ACTION_STOP_SERVICE
+                startService(intent)
             } else {
                 val dialog = UsageStatsPermissions.requestPermissionsDialog(this)
                 if (dialog != null) {
